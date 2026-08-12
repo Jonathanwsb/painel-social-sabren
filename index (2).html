@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel ITS — Águas do Rio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #EEF3F7;
+    --panel: #FFFFFF;
+    --panel-2: #F4F8FA;
+    --border: #DCE6ED;
+    --border-soft: #E9F0F4;
+    --text: #0E2A3D;
+    --text-dim: #55708A;
+    --text-faint: #92A7BA;
+    --brand-blue: #1B5FA6;
+    --brand-blue-2: #0E3F73;
+    --teal: #0EA894;
+    --teal-dim: #DCF3EE;
+    --amber: #C97F0E;
+    --amber-dim: #FBEFDC;
+    --red: #D2453F;
+    --red-dim: #FBE3E1;
+    --shadow: 0 2px 10px rgba(14,42,61,0.06);
+    --shadow-lg: 0 10px 30px rgba(14,42,61,0.10);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  ::-webkit-scrollbar{width:8px; height:8px;}
+  ::-webkit-scrollbar-thumb{background:#C7D6E0; border-radius:4px;}
+
+  /* ===================== HERO HEADER ===================== */
+  header{
+    position:relative; overflow:hidden;
+    background: linear-gradient(120deg, var(--brand-blue-2) 0%, var(--brand-blue) 55%, var(--teal) 130%);
+    padding:26px 34px 46px 34px;
+  }
+  .brand-row{display:flex; align-items:center; gap:14px; margin-bottom:18px;}
+  .brand-mark{
+    width:46px; height:46px; border-radius:14px; background:rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.35); display:flex; align-items:center; justify-content:center;
+    backdrop-filter:blur(4px);
+  }
+  .brand-name{color:#fff;}
+  .brand-name .l1{font-size:10.5px; letter-spacing:3px; opacity:0.8; font-weight:600;}
+  .brand-name .l2{font-size:17px; font-weight:800; letter-spacing:0.5px; margin-top:1px;}
+
+  .hero-title{color:#fff; font-size:25px; font-weight:800; letter-spacing:-0.3px; margin:4px 0 6px 0;}
+  .hero-sub{color:rgba(255,255,255,0.82); font-size:12.5px; max-width:640px; line-height:1.6;}
+
+  .wave-divider{position:absolute; left:0; right:0; bottom:-1px; line-height:0;}
+  .wave-divider svg{width:100%; height:56px; display:block;}
+
+  /* ===================== LAYOUT ===================== */
+  #app{max-width:1400px; margin:-20px auto 0 auto; padding:0 26px 50px 26px; position:relative; z-index:2;}
+  #grid{display:grid; grid-template-columns:1fr 300px; gap:20px; align-items:start;}
+  @media (max-width:1050px){ #grid{grid-template-columns:1fr;} }
+
+  #error-box{
+    display:none; grid-column:1/-1; background:var(--red-dim); border:1px solid #F0C0BC; border-left:3px solid var(--red);
+    border-radius:10px; padding:16px 20px; color:#7A2723; font-size:13px; line-height:1.6; margin-bottom:4px;
+  }
+  #error-box code{background:rgba(0,0,0,0.06); padding:1px 6px; border-radius:4px; font-size:12px;}
+
+  /* ===================== MAIN COLUMN ===================== */
+  #main-col{display:flex; flex-direction:column; gap:18px;}
+
+  .its-strip{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-lg);
+    padding:18px 24px; display:flex; align-items:center; gap:28px; flex-wrap:wrap;
+  }
+  .its-strip-label{font-size:10.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-faint); font-weight:700;}
+  .its-strip-val{font-family:'IBM Plex Mono',monospace; font-size:36px; font-weight:700; color:var(--teal); line-height:1; margin-top:4px;}
+  .its-strip-trend{display:flex; align-items:center; gap:7px; font-size:13px; font-weight:700; padding:8px 14px; border-radius:10px;}
+  .its-strip-trend.up{color:var(--red); background:var(--red-dim);}
+  .its-strip-trend.down{color:var(--teal); background:var(--teal-dim);}
+  .its-strip-trend.flat{color:var(--text-faint); background:var(--panel-2);}
+  .its-strip-trend .arrow{font-size:16px;}
+  .its-strip-trend-sub{font-size:10.5px; font-weight:400; opacity:0.75; margin-top:1px;}
+
+  .card{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow);
+    padding:20px 22px;
+  }
+  .card h3{margin:0 0 3px 0; font-size:14px; font-weight:800; color:var(--text);}
+  .card .card-sub{font-size:11px; color:var(--text-faint); margin-bottom:14px;}
+  .card .card-sub b{color:var(--teal);}
+
+  /* summary table */
+  table.summary{width:100%; border-collapse:collapse; font-size:12.5px;}
+  table.summary th{
+    text-align:right; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.5px; text-transform:uppercase;
+    color:var(--text-faint); padding:8px 10px; border-bottom:2px solid var(--border-soft); font-weight:700;
+  }
+  table.summary th:first-child, table.summary td:first-child{text-align:left;}
+  table.summary td{padding:10px 10px; text-align:right; border-bottom:1px solid var(--border-soft); font-family:'IBM Plex Mono',monospace; color:var(--text);}
+  table.summary tr:hover td{background:var(--panel-2);}
+  table.summary tr.total-row td{font-weight:700; border-top:2px solid var(--border); border-bottom:none; background:var(--panel-2);}
+  table.summary td.its-cell{color:var(--teal); font-weight:700;}
+  table.summary td.mes-cell{font-family:'Inter',sans-serif; font-weight:600; color:var(--text);}
+
+  .chart-wrap{position:relative; height:230px;}
+
+  footer{text-align:center; padding:26px 20px 10px 20px; color:var(--text-faint); font-size:11px; font-family:'IBM Plex Mono',monospace;}
+
+  /* ===================== FILTER SIDEBAR ===================== */
+  #sidebar{display:flex; flex-direction:column; gap:14px;}
+  .filter-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); padding:16px 18px;
+  }
+  .filter-card .ftitle{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:1.3px; text-transform:uppercase;
+    color:var(--brand-blue); font-weight:700; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .filter-card .fcount{
+    background:var(--teal-dim); color:var(--teal); font-size:9.5px; padding:2px 7px; border-radius:10px; font-weight:700;
+  }
+
+  .check-list{display:flex; flex-direction:column; gap:2px;}
+  .check-item{
+    display:flex; align-items:center; gap:9px; padding:6px 6px; border-radius:7px; cursor:pointer; user-select:none;
+    font-size:12.5px; color:var(--text-dim); transition:background .12s ease;
+  }
+  .check-item:hover{background:var(--panel-2);}
+  .check-item .box{
+    width:15px; height:15px; border-radius:4px; border:1.5px solid var(--border); flex-shrink:0; position:relative;
+    transition:all .12s ease;
+  }
+  .check-item.active .box{background:var(--teal); border-color:var(--teal);}
+  .check-item.active .box::after{
+    content:""; position:absolute; left:4px; top:1px; width:4px; height:8px; border:solid white; border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
+  .check-item.active{color:var(--text); font-weight:600;}
+
+  /* dropdown (Cidade) */
+  .dropdown{position:relative;}
+  .dropdown-btn{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px;
+    background:var(--panel-2); border:1px solid var(--border); border-radius:9px; padding:9px 12px;
+    font-size:12.5px; color:var(--text-dim); cursor:pointer; font-family:'Inter',sans-serif;
+  }
+  .dropdown-btn .sel-badge{background:var(--teal); color:#fff; font-size:10px; padding:1px 7px; border-radius:10px; font-weight:700;}
+  .dropdown-btn .chev{color:var(--text-faint); transition:transform .15s ease; font-size:10px;}
+  .dropdown.open .chev{transform:rotate(180deg);}
+  .dropdown-panel{
+    display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:50;
+    background:var(--panel); border:1px solid var(--border); border-radius:10px; box-shadow:var(--shadow-lg);
+    padding:10px; max-height:260px; overflow-y:auto;
+  }
+  .dropdown.open .dropdown-panel{display:block;}
+  .dropdown-search{
+    width:100%; padding:7px 10px; border-radius:7px; border:1px solid var(--border); font-size:12px; margin-bottom:8px;
+    font-family:'Inter',sans-serif; background:var(--panel-2);
+  }
+
+  .reset-link{
+    width:100%; margin-top:2px; padding:9px; background:transparent; border:1px dashed var(--border);
+    border-radius:9px; color:var(--text-faint); font-size:11.5px; cursor:pointer; font-family:'IBM Plex Mono',monospace;
+  }
+  .reset-link:hover{border-color:var(--brand-blue); color:var(--brand-blue);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand-row">
+    <div class="brand-mark">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M2 16C5 12 8 20 11 16C14 12 17 20 20 16C21.5 14 23 15 24 16" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M2 21C5 17 8 25 11 21C14 17 17 25 20 21C21.5 19 23 20 24 21" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.55"/><circle cx="13" cy="8" r="4.2" stroke="white" stroke-width="2"/></svg>
+    </div>
+    <div class="brand-name">
+      <div class="l1">ÁGUAS DO RIO</div>
+      <div class="l2">Planejamento e Controle</div>
+    </div>
+  </div>
+  <div class="hero-title">Painel ITS — Indicador Social Territorial</div>
+  <div class="hero-sub">Acompanhamento mensal do indicador social líquido de economias, descontando o que está em área SABREN, para as ligações do Bloco 1 e Bloco 4.</div>
+
+  <div class="wave-divider">
+    <svg viewBox="0 0 1400 60" preserveAspectRatio="none"><path d="M0,30 C200,60 400,0 700,25 C1000,50 1200,10 1400,30 L1400,60 L0,60 Z" fill="#EEF3F7"/></svg>
+  </div>
+</header>
+
+<div id="app">
+  <div id="error-box"></div>
+
+  <div id="grid">
+    <div id="main-col">
+
+      <div class="its-strip">
+        <div>
+          <div class="its-strip-label">ITS · seleção atual</div>
+          <div class="its-strip-val" id="itsAtual">—</div>
+        </div>
+        <div class="its-strip-trend flat" id="itsTrend"></div>
+      </div>
+
+      <div class="card">
+        <h3>Resumo por referência</h3>
+        <div class="card-sub">Respeita todos os filtros selecionados</div>
+        <div style="overflow-x:auto;">
+          <table class="summary" id="summaryTable"></table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Evolução Social</h3>
+        <div class="card-sub">Todos os meses, <b>não é afetado pelo filtro de Referência</b> (demais filtros continuam valendo)</div>
+        <div class="chart-wrap"><canvas id="chartSocial"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h3>Evolução ITS</h3>
+        <div class="card-sub">Todos os meses, <b>não é afetado pelo filtro de Referência</b> (demais filtros continuam valendo)</div>
+        <div class="chart-wrap"><canvas id="chartITS"></canvas></div>
+      </div>
+
+    </div>
+
+    <div id="sidebar">
+      <div class="filter-card">
+        <div class="ftitle">Cidade</div>
+        <div class="dropdown" id="dropCidade">
+          <button class="dropdown-btn" id="btnCidade">
+            <span id="cidadeLabel">Todas</span>
+            <span class="chev">▾</span>
+          </button>
+          <div class="dropdown-panel">
+            <input class="dropdown-search" id="searchCidade" placeholder="Buscar cidade...">
+            <div class="check-list" id="chipCidade"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <div class="ftitle">Bloco</div>
+        <div class="check-list" id="chipBloco"></div>
+      </div>
+
+      <div class="filter-card">
+        <div class="ftitle">Categoria</div>
+        <div class="check-list" id="chipCategoria"></div>
+      </div>
+
+      <div class="filter-card">
+        <div class="ftitle">Situação da ligação</div>
+        <div class="check-list" id="chipSituacao"></div>
+      </div>
+
+      <div class="filter-card">
+        <div class="ftitle">Referência</div>
+        <div class="check-list" id="chipReferencia"></div>
+      </div>
+
+      <button class="reset-link" id="btnReset">↺ limpar filtros</button>
+    </div>
+  </div>
+</div>
+
+<footer id="footerNote"></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<script>
+const CSV_PATH = 'consolidado_historico.csv';
+
+const state = {
+  cidades: new Set(),
+  blocos: new Set(),
+  categorias: new Set(),
+  situacoes: new Set(),
+  referencias: new Set(),
+  rows: []
+};
+
+let chartSocial, chartITS;
+
+Chart.register(ChartDataLabels);
+
+function formatMes(mesStr){
+  const [ano, mes] = mesStr.split('-');
+  const nomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return `${nomes[parseInt(mes,10)-1]}/${ano}`;
+}
+function fmtNum(v){ return Math.round(v).toLocaleString('pt-BR'); }
+function fmtPct(v){ return v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '%'; }
+
+function showError(msg){
+  const box = document.getElementById('error-box');
+  box.style.display = 'block';
+  box.innerHTML = msg;
+}
+
+async function carregarDados(){
+  let resp;
+  try { resp = await fetch(CSV_PATH); }
+  catch (e) {
+    showError(`Não consegui buscar <code>${CSV_PATH}</code>. Se você abriu este arquivo direto (duplo-clique), o navegador bloqueia essa leitura por segurança. Publique no GitHub Pages ou use um servidor local (ex: Live Server do VS Code).`);
+    return null;
+  }
+  if (!resp.ok) {
+    showError(`O arquivo <code>${CSV_PATH}</code> não foi encontrado (HTTP ${resp.status}). Confirme que ele está na mesma pasta que este HTML.`);
+    return null;
+  }
+  const text = await resp.text();
+  const parsed = Papa.parse(text, { header: true, delimiter: ';', skipEmptyLines: true, dynamicTyping: true });
+  if (parsed.errors?.length) console.warn('Avisos ao ler CSV:', parsed.errors);
+  return parsed.data.filter(r => r.mes_referencia);
+}
+
+function calcularIndicadores(rows){
+  const totais = rows.reduce((s,r)=>s+(r.economias_totais||0),0);
+  const sociais = rows.reduce((s,r)=>s+(r.economias_sociais||0),0);
+  const sabren = rows.reduce((s,r)=>s+(r.economias_sabren||0),0);
+  const social = totais ? sociais/totais*100 : 0;
+  const socialLiq = (totais-sabren) ? (sociais-sabren)/(totais-sabren)*100 : 0;
+  const its = (0.5*(socialLiq/100) - 0.025)/0.975*100;
+  return { totais, sociais, sabren, social, socialLiq, its };
+}
+
+function passaFiltroComuns(r){
+  if (state.cidades.size > 0 && !state.cidades.has(r.CIDADE)) return false;
+  if (state.blocos.size > 0 && !state.blocos.has(r.BLOCO)) return false;
+  if (state.categorias.size > 0 && !state.categorias.has(r.CATEGORIA)) return false;
+  if (state.situacoes.size > 0 && !state.situacoes.has(r.SIT_LIG)) return false;
+  return true;
+}
+function passaFiltroKPI(r){
+  if (!passaFiltroComuns(r)) return false;
+  if (state.referencias.size > 0 && !state.referencias.has(r.mes_referencia)) return false;
+  return true;
+}
+
+// -------- construção dos filtros --------
+function montaCheckList(containerId, valores, set, counts){
+  const el = document.getElementById(containerId);
+  el.innerHTML = valores.map(v => `
+    <div class="check-item" data-v="${v}">
+      <span class="box"></span>
+      <span>${v}${counts ? ` <span style="color:var(--text-faint); font-size:10.5px;">(${counts[v]})</span>` : ''}</span>
+    </div>
+  `).join('');
+  el.querySelectorAll('.check-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const v = item.dataset.v;
+      if (set.has(v)) { set.delete(v); item.classList.remove('active'); }
+      else { set.add(v); item.classList.add('active'); }
+      render();
+    });
+  });
+}
+
+function popularFiltros(rows){
+  const cidades = [...new Set(rows.map(r => r.CIDADE))].sort();
+  const blocos = [...new Set(rows.map(r => r.BLOCO))].sort();
+  const categorias = [...new Set(rows.map(r => r.CATEGORIA))].sort();
+  const situacoes = [...new Set(rows.map(r => r.SIT_LIG))].sort();
+  const referencias = [...new Set(rows.map(r => r.mes_referencia))].sort().reverse();
+
+  montaCheckListCidade(cidades);
+  montaCheckList('chipBloco', blocos, state.blocos);
+  montaCheckList('chipCategoria', categorias, state.categorias);
+  montaCheckList('chipSituacao', situacoes, state.situacoes);
+
+  const refEl = document.getElementById('chipReferencia');
+  refEl.innerHTML = referencias.map(v => `<div class="check-item" data-v="${v}"><span class="box"></span><span>${formatMes(v)}</span></div>`).join('');
+  refEl.querySelectorAll('.check-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const v = item.dataset.v;
+      if (state.referencias.has(v)) { state.referencias.delete(v); item.classList.remove('active'); }
+      else { state.referencias.add(v); item.classList.add('active'); }
+      render();
+    });
+  });
+}
+
+function montaCheckListCidade(cidades){
+  const el = document.getElementById('chipCidade');
+  function draw(filtro){
+    const filtradas = cidades.filter(c => c.toLowerCase().includes(filtro.toLowerCase()));
+    el.innerHTML = filtradas.map(v => `<div class="check-item ${state.cidades.has(v)?'active':''}" data-v="${v}"><span class="box"></span><span>${v}</span></div>`).join('');
+    el.querySelectorAll('.check-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const v = item.dataset.v;
+        if (state.cidades.has(v)) state.cidades.delete(v); else state.cidades.add(v);
+        item.classList.toggle('active');
+        atualizaLabelCidade();
+        render();
+      });
+    });
+  }
+  draw('');
+  document.getElementById('searchCidade').addEventListener('input', (e) => draw(e.target.value));
+
+  const dropdown = document.getElementById('dropCidade');
+  const btn = document.getElementById('btnCidade');
+  btn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('open'); });
+  document.addEventListener('click', (e) => { if (!dropdown.contains(e.target)) dropdown.classList.remove('open'); });
+}
+
+function atualizaLabelCidade(){
+  const lbl = document.getElementById('cidadeLabel');
+  if (state.cidades.size === 0) lbl.textContent = 'Todas';
+  else if (state.cidades.size === 1) lbl.textContent = [...state.cidades][0];
+  else lbl.textContent = `${state.cidades.size} selecionadas`;
+}
+
+// -------- render --------
+function renderStrip(rowsKPI, rowsEvolucao){
+  const ind = calcularIndicadores(rowsKPI);
+  document.getElementById('itsAtual').textContent = fmtPct(ind.its);
+
+  const porMes = {};
+  rowsEvolucao.forEach(r => {
+    (porMes[r.mes_referencia] ||= []).push(r);
+  });
+  const meses = Object.keys(porMes).sort();
+  const trendEl = document.getElementById('itsTrend');
+
+  if (meses.length >= 2) {
+    const ultimo = calcularIndicadores(porMes[meses[meses.length-1]]);
+    const penultimo = calcularIndicadores(porMes[meses[meses.length-2]]);
+    const diff = ultimo.its - penultimo.its;
+    const subindo = diff > 0.001, descendo = diff < -0.001;
+    const cls = subindo ? 'up' : (descendo ? 'down' : 'flat');
+    const arrow = subindo ? '▲' : (descendo ? '▼' : '▬');
+    trendEl.className = `its-strip-trend ${cls}`;
+    trendEl.innerHTML = `<span class="arrow">${arrow}</span><div><div>${Math.abs(diff).toFixed(2)} p.p.</div><div class="its-strip-trend-sub">vs ${formatMes(meses[meses.length-2])}</div></div>`;
+  } else {
+    trendEl.className = 'its-strip-trend flat';
+    trendEl.innerHTML = `<span class="its-strip-trend-sub">Sem mês anterior pra comparar ainda</span>`;
+  }
+}
+
+function renderTabela(rowsKPI){
+  const porMes = {};
+  rowsKPI.forEach(r => { (porMes[r.mes_referencia] ||= []).push(r); });
+  const meses = Object.keys(porMes).sort();
+
+  const linhas = meses.map(m => {
+    const ind = calcularIndicadores(porMes[m]);
+    return `<tr>
+      <td class="mes-cell">${formatMes(m)}</td>
+      <td>${fmtNum(ind.totais)}</td>
+      <td>${fmtNum(ind.sociais)}</td>
+      <td>${fmtNum(ind.sabren)}</td>
+      <td>${fmtPct(ind.social)}</td>
+      <td>${fmtPct(ind.socialLiq)}</td>
+      <td class="its-cell">${fmtPct(ind.its)}</td>
+    </tr>`;
+  }).join('');
+
+  const total = calcularIndicadores(rowsKPI);
+  const totalRow = `<tr class="total-row">
+    <td class="mes-cell">Total</td>
+    <td>${fmtNum(total.totais)}</td>
+    <td>${fmtNum(total.sociais)}</td>
+    <td>${fmtNum(total.sabren)}</td>
+    <td>${fmtPct(total.social)}</td>
+    <td>${fmtPct(total.socialLiq)}</td>
+    <td class="its-cell">${fmtPct(total.its)}</td>
+  </tr>`;
+
+  document.getElementById('summaryTable').innerHTML = `
+    <thead><tr>
+      <th>Referência</th><th>Econ. Totais</th><th>Econ. Sociais</th><th>Econ. SABREN</th>
+      <th>Social</th><th>Social - SABREN</th><th>ITS</th>
+    </tr></thead>
+    <tbody>${linhas}${totalRow}</tbody>`;
+}
+
+function labelFirstLast(ctx){
+  const { dataIndex, dataset } = ctx;
+  if (dataIndex === 0 || dataIndex === dataset.data.length - 1) return dataset.data[dataIndex].toFixed(2) + '%';
+  return '';
+}
+
+function renderChartSocial(rowsEvolucao){
+  const porMes = {};
+  rowsEvolucao.forEach(r => { (porMes[r.mes_referencia] ||= []).push(r); });
+  const meses = Object.keys(porMes).sort();
+  const labels = meses.map(formatMes);
+  const dataSocial = meses.map(m => calcularIndicadores(porMes[m]).social);
+
+  if (chartSocial) chartSocial.destroy();
+  chartSocial = new Chart(document.getElementById('chartSocial'), {
+    type: 'line',
+    data: { labels, datasets: [{
+      data: dataSocial, borderColor: '#1B5FA6', backgroundColor: 'rgba(27,95,166,0.10)',
+      fill: true, tension: 0.3, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#1B5FA6'
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (ctx) => `Social: ${ctx.parsed.y.toFixed(2)}%` } },
+        datalabels: { align: 'top', color: '#1B5FA6', font: { size: 11, weight: 700 }, formatter: (v, ctx) => labelFirstLast(ctx) }
+      },
+      scales: {
+        y: { ticks: { font: { size: 10 }, callback: (v) => v.toFixed(1)+'%' }, grid: { color: '#E9F0F4' } },
+        x: { ticks: { font: { size: 10 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderChartITS(rowsEvolucao){
+  const porMes = {};
+  rowsEvolucao.forEach(r => { (porMes[r.mes_referencia] ||= []).push(r); });
+  const meses = Object.keys(porMes).sort();
+  const labels = meses.map(formatMes);
+  const dataITS = meses.map(m => calcularIndicadores(porMes[m]).its);
+
+  if (chartITS) chartITS.destroy();
+  chartITS = new Chart(document.getElementById('chartITS'), {
+    type: 'line',
+    data: { labels, datasets: [{
+      data: dataITS, borderColor: '#0EA894', backgroundColor: 'rgba(14,168,148,0.12)',
+      fill: true, tension: 0.3, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#0EA894'
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (ctx) => `ITS: ${ctx.parsed.y.toFixed(2)}%` } },
+        datalabels: { align: 'top', color: '#0EA894', font: { size: 11, weight: 700 }, formatter: (v, ctx) => labelFirstLast(ctx) }
+      },
+      scales: {
+        y: { ticks: { font: { size: 10 }, callback: (v) => v.toFixed(1)+'%' }, grid: { color: '#E9F0F4' } },
+        x: { ticks: { font: { size: 10 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function render(){
+  const rowsKPI = state.rows.filter(passaFiltroKPI);
+  const rowsEvolucao = state.rows.filter(passaFiltroComuns);
+
+  renderStrip(rowsKPI, rowsEvolucao);
+  renderTabela(rowsKPI);
+  renderChartSocial(rowsEvolucao);
+  renderChartITS(rowsEvolucao);
+}
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  state.cidades.clear(); state.blocos.clear(); state.categorias.clear();
+  state.situacoes.clear(); state.referencias.clear();
+  document.querySelectorAll('.check-item').forEach(c => c.classList.remove('active'));
+  atualizaLabelCidade();
+  render();
+});
+
+(async function init(){
+  const rows = await carregarDados();
+  if (!rows) return;
+  state.rows = rows;
+  popularFiltros(rows);
+  render();
+
+  const meses = [...new Set(rows.map(r => r.mes_referencia))].sort();
+  document.getElementById('footerNote').textContent =
+    `${rows.length.toLocaleString('pt-BR')} linhas agregadas · ${meses.length} mês(es) carregado(s) (${formatMes(meses[0])} – ${formatMes(meses[meses.length-1])}) · lido de ${CSV_PATH}`;
+})();
+
+</script>
+</body>
+</html>
