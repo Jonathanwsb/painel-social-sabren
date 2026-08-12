@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Social x SABREN — Águas do Rio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F4F6F8;
+    --bg-deep: #FFFFFF;
+    --panel: #FFFFFF;
+    --panel-2: #EEF2F5;
+    --border: #DCE3E8;
+    --border-soft: #E8EDF0;
+    --text: #16232C;
+    --text-dim: #566B7A;
+    --text-faint: #8CA0AC;
+    --teal: #0E8C7F;
+    --teal-dim: #DCF3EF;
+    --amber: #C2790A;
+    --amber-dim: #FBEEDA;
+    --red: #D6423C;
+    --red-dim: #FBE4E2;
+    --blue: #2464B4;
+    --blue-dim: #E0EBF9;
+    --grid-line: rgba(14,140,127,0.05);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+  body{
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  header{
+    padding:22px 32px 18px 32px;
+    border-bottom:1px solid var(--border);
+    background:var(--bg-deep);
+    position:relative;
+  }
+  header::before{
+    content:""; position:absolute; left:0; top:0; height:3px; width:100%;
+    background:linear-gradient(90deg, var(--teal), transparent 60%); opacity:0.7;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:2.5px; text-transform:uppercase;
+    color:var(--teal); margin-bottom:6px; display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--teal); box-shadow:0 0 8px var(--teal); animation:pulse 2.2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.35;}}
+  h1{margin:0; font-size:22px; font-weight:800; letter-spacing:-0.3px;}
+  h1 span{color:var(--text-dim); font-weight:500;}
+  .subtitle{color:var(--text-dim); font-size:12.5px; margin-top:5px; max-width:720px; line-height:1.5;}
+
+  #status-bar{
+    display:flex; align-items:center; gap:10px; margin-top:14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-faint);
+  }
+  #status-bar .pill{padding:3px 10px; border-radius:12px; background:var(--panel-2); border:1px solid var(--border);}
+
+  #app{max-width:1320px; margin:0 auto; padding:24px 32px 60px 32px;}
+
+  #error-box{
+    display:none; background:var(--red-dim); border:1px solid #F0B9B6; border-left:3px solid var(--red);
+    border-radius:8px; padding:16px 20px; color:#7A2320; font-size:13px; line-height:1.6; margin-bottom:24px;
+  }
+  #error-box code{background:rgba(0,0,0,0.06); padding:1px 6px; border-radius:4px; font-size:12px;}
+
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:26px;}
+  .kpi{
+    background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px 18px;
+    box-shadow:0 1px 2px rgba(16,35,44,0.04);
+  }
+  .kpi .lbl{font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;}
+  .kpi .val{font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600; line-height:1; color:var(--text);}
+  .kpi .delta{font-size:11.5px; margin-top:8px; font-family:'IBM Plex Mono',monospace;}
+  .kpi .delta.up{color:var(--red);}
+  .kpi .delta.down{color:var(--teal);}
+  .kpi.teal .val{color:var(--teal);}
+  .kpi.amber .val{color:var(--amber);}
+
+  .filters{
+    display:flex; flex-wrap:wrap; gap:22px; align-items:flex-start;
+    background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px 20px; margin-bottom:26px;
+  }
+  .filter-group{display:flex; flex-direction:column; gap:8px;}
+  .filter-title{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.4px; text-transform:uppercase; color:var(--text-faint);}
+  .chip-row{display:flex; flex-wrap:wrap; gap:6px; max-width:420px;}
+  .chip{
+    font-size:11.5px; padding:5px 12px; border-radius:20px; border:1px solid var(--border);
+    background:var(--panel-2); color:var(--text-dim); cursor:pointer; user-select:none; transition:all .15s ease; white-space:nowrap;
+  }
+  .chip:hover{border-color:var(--teal); color:var(--text);}
+  .chip.active{background:var(--teal-dim); border-color:var(--teal); color:var(--teal); font-weight:600;}
+  .range-selects{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-dim);}
+  select{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; padding:6px 10px; border-radius:6px;
+    border:1px solid var(--border); background:var(--panel-2); color:var(--text); cursor:pointer;
+  }
+  .reset-link{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-faint); background:none; border:1px dashed var(--border);
+    border-radius:6px; padding:6px 12px; cursor:pointer; align-self:flex-end; margin-left:auto;
+  }
+  .reset-link:hover{color:var(--text-dim); border-color:var(--text-dim);}
+
+  .charts-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:18px; margin-bottom:22px;}
+  @media (max-width:980px){.charts-grid{grid-template-columns:1fr;}}
+  .chart-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px 20px;
+    box-shadow:0 1px 2px rgba(16,35,44,0.04);
+  }
+  .chart-card h3{margin:0 0 2px 0; font-size:13.5px; font-weight:700;}
+  .chart-card .chart-sub{font-size:11px; color:var(--text-faint); margin-bottom:14px;}
+  .chart-wrap{position:relative; height:280px;}
+
+  .legend-note{display:flex; gap:16px; margin-top:10px; font-size:11px; color:var(--text-dim); flex-wrap:wrap;}
+  .legend-note .sw{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:middle;}
+
+  footer{text-align:center; padding:20px; color:var(--text-faint); font-size:11px; font-family:'IBM Plex Mono',monospace;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="error-box"></div>
+
+  <div class="kpis" id="kpiRow"></div>
+
+  <div class="filters" id="filtersRow">
+    <div class="filter-group">
+      <div class="filter-title">Bloco</div>
+      <div class="chip-row" id="chipBloco"></div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-title">Categoria</div>
+      <div class="chip-row" id="chipCategoria"></div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-title">Situação da ligação</div>
+      <div class="chip-row" id="chipSituacao"></div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-title">Referência</div>
+      <div class="range-selects">
+        <select id="selDe"></select>
+        <span>até</span>
+        <select id="selAte"></select>
+      </div>
+    </div>
+    <button class="reset-link" id="btnReset">↺ limpar filtros</button>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Evolução mensal</h3>
+      <div class="chart-sub">Economias totais, líquidas (após SABREN) e dentro do SABREN</div>
+      <div class="chart-wrap"><canvas id="chartEvolucao"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Bloco 1 vs Bloco 4</h3>
+      <div class="chart-sub">Economias líquidas por bloco, mês a mês</div>
+      <div class="chart-wrap"><canvas id="chartBloco"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<footer id="footerNote"></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+const CSV_PATH = 'consolidado_historico.csv';
+
+const state = {
+  rows: [],
+  blocos: new Set(),
+  categorias: new Set(),
+  situacoes: new Set(),
+  mesDe: null,
+  mesAte: null
+};
+
+const COLORS = {
+  totais: '#2464B4',
+  liquidas: '#0E8C7F',
+  sabren: '#C2790A',
+  bloco1: '#0E8C7F',
+  bloco4: '#2464B4'
+};
+
+let chartEvolucao, chartBloco;
+
+function formatMes(mesStr){
+  const [ano, mes] = mesStr.split('-');
+  const nomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return `${nomes[parseInt(mes,10)-1]}/${ano}`;
+}
+
+function fmtNum(v){
+  return Math.round(v).toLocaleString('pt-BR');
+}
+
+function showError(msg){
+  const box = document.getElementById('error-box');
+  box.style.display = 'block';
+  box.innerHTML = msg;
+}
+
+async function carregarDados(){
+  let resp;
+  try {
+    resp = await fetch(CSV_PATH);
+  } catch (e) {
+    showError(`Não consegui buscar <code>${CSV_PATH}</code>. Se você abriu este arquivo direto (duplo-clique), o navegador bloqueia essa leitura por segurança. Rode por um servidor local (ex: Live Server do VS Code) ou publique no GitHub Pages junto com o CSV na mesma pasta.`);
+    return null;
+  }
+  if (!resp.ok) {
+    showError(`O arquivo <code>${CSV_PATH}</code> não foi encontrado (HTTP ${resp.status}). Confirme que ele está na mesma pasta que este HTML.`);
+    return null;
+  }
+  const text = await resp.text();
+  const parsed = Papa.parse(text, { header: true, delimiter: ';', skipEmptyLines: true, dynamicTyping: true });
+  if (parsed.errors && parsed.errors.length > 0) {
+    console.warn('Avisos ao ler CSV:', parsed.errors);
+  }
+  return parsed.data.filter(r => r.mes_referencia);
+}
+
+function popularFiltros(rows){
+  const blocos = [...new Set(rows.map(r => r.BLOCO))].sort();
+  const categorias = [...new Set(rows.map(r => r.CATEGORIA))].sort();
+  const situacoes = [...new Set(rows.map(r => r.SIT_LIG))].sort();
+  const meses = [...new Set(rows.map(r => r.mes_referencia))].sort();
+
+  const chipBloco = document.getElementById('chipBloco');
+  chipBloco.innerHTML = blocos.map(b => `<div class="chip" data-v="${b}">${b}</div>`).join('');
+  chipBloco.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    toggleSet(state.blocos, c.dataset.v); c.classList.toggle('active'); render();
+  }));
+
+  const chipCategoria = document.getElementById('chipCategoria');
+  chipCategoria.innerHTML = categorias.map(c => `<div class="chip" data-v="${c}">${c}</div>`).join('');
+  chipCategoria.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    toggleSet(state.categorias, c.dataset.v); c.classList.toggle('active'); render();
+  }));
+
+  const chipSituacao = document.getElementById('chipSituacao');
+  chipSituacao.innerHTML = situacoes.map(s => `<div class="chip" data-v="${s}">${s}</div>`).join('');
+  chipSituacao.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    toggleSet(state.situacoes, c.dataset.v); c.classList.toggle('active'); render();
+  }));
+
+  const selDe = document.getElementById('selDe');
+  const selAte = document.getElementById('selAte');
+  selDe.innerHTML = meses.map(m => `<option value="${m}">${formatMes(m)}</option>`).join('');
+  selAte.innerHTML = meses.map(m => `<option value="${m}">${formatMes(m)}</option>`).join('');
+  selDe.value = meses[0];
+  selAte.value = meses[meses.length - 1];
+  state.mesDe = meses[0];
+  state.mesAte = meses[meses.length - 1];
+  selDe.addEventListener('change', () => { state.mesDe = selDe.value; render(); });
+  selAte.addEventListener('change', () => { state.mesAte = selAte.value; render(); });
+}
+
+function toggleSet(set, val){
+  if (set.has(val)) set.delete(val); else set.add(val);
+}
+
+function passaFiltro(r){
+  if (state.blocos.size > 0 && !state.blocos.has(r.BLOCO)) return false;
+  if (state.categorias.size > 0 && !state.categorias.has(r.CATEGORIA)) return false;
+  if (state.situacoes.size > 0 && !state.situacoes.has(r.SIT_LIG)) return false;
+  if (state.mesDe && r.mes_referencia < state.mesDe) return false;
+  if (state.mesAte && r.mes_referencia > state.mesAte) return false;
+  return true;
+}
+
+function agregarPorMes(rows){
+  const porMes = {};
+  rows.forEach(r => {
+    if (!porMes[r.mes_referencia]) {
+      porMes[r.mes_referencia] = { totais: 0, sabren: 0, liquidas: 0, ligacoes: 0 };
+    }
+    porMes[r.mes_referencia].totais += r.economias_totais || 0;
+    porMes[r.mes_referencia].sabren += r.economias_sabren || 0;
+    porMes[r.mes_referencia].liquidas += r.economias_liquidas || 0;
+    porMes[r.mes_referencia].ligacoes += r.ligacoes || 0;
+  });
+  return porMes;
+}
+
+function agregarPorMesEBloco(rows){
+  const chave = {};
+  rows.forEach(r => {
+    const k = r.mes_referencia;
+    if (!chave[k]) chave[k] = {};
+    if (!chave[k][r.BLOCO]) chave[k][r.BLOCO] = 0;
+    chave[k][r.BLOCO] += r.economias_liquidas || 0;
+  });
+  return chave;
+}
+
+function renderKpis(rowsFiltradas){
+  const porMes = agregarPorMes(rowsFiltradas);
+  const meses = Object.keys(porMes).sort();
+  const kpiRow = document.getElementById('kpiRow');
+
+  if (meses.length === 0) {
+    kpiRow.innerHTML = `<div class="kpi"><div class="lbl">Sem dados</div><div class="val">—</div></div>`;
+    return;
+  }
+
+  const ultimoMes = meses[meses.length - 1];
+  const penultimoMes = meses.length > 1 ? meses[meses.length - 2] : null;
+  const atual = porMes[ultimoMes];
+  const anterior = penultimoMes ? porMes[penultimoMes] : null;
+  const pctSabren = atual.totais ? (atual.sabren / atual.totais * 100) : 0;
+
+  function deltaHtml(valAtual, valAnterior, inverterCor){
+    if (!anterior) return '';
+    const diff = valAtual - valAnterior;
+    const pct = valAnterior ? (diff / valAnterior * 100) : 0;
+    const subiu = diff > 0;
+    const cls = inverterCor ? (subiu ? 'down' : 'up') : (subiu ? 'up' : 'down');
+    const seta = subiu ? '▲' : '▼';
+    return `<div class="delta ${cls}">${seta} ${Math.abs(pct).toFixed(1)}% vs ${formatMes(penultimoMes)}</div>`;
+  }
+
+  const kpis = [
+    { lbl: `Economias totais · ${formatMes(ultimoMes)}`, val: fmtNum(atual.totais), delta: deltaHtml(atual.totais, anterior?.totais, false), cls: '' },
+    { lbl: 'Economias dentro do SABREN', val: fmtNum(atual.sabren), delta: deltaHtml(atual.sabren, anterior?.sabren, true), cls: 'amber' },
+    { lbl: 'Economias líquidas', val: fmtNum(atual.liquidas), delta: deltaHtml(atual.liquidas, anterior?.liquidas, false), cls: 'teal' },
+    { lbl: '% dentro do SABREN', val: pctSabren.toFixed(2) + '%', delta: '', cls: 'amber' }
+  ];
+
+  kpiRow.innerHTML = kpis.map(k => `
+    <div class="kpi ${k.cls}">
+      <div class="lbl">${k.lbl}</div>
+      <div class="val">${k.val}</div>
+      ${k.delta}
+    </div>
+  `).join('');
+}
+
+function renderChartEvolucao(rowsFiltradas){
+  const porMes = agregarPorMes(rowsFiltradas);
+  const meses = Object.keys(porMes).sort();
+  const labels = meses.map(formatMes);
+
+  const data = {
+    labels,
+    datasets: [
+      { label: 'Economias totais', data: meses.map(m => porMes[m].totais), borderColor: COLORS.totais, backgroundColor: COLORS.totais, tension: 0.25, borderWidth: 2, pointRadius: 3 },
+      { label: 'Economias líquidas', data: meses.map(m => porMes[m].liquidas), borderColor: COLORS.liquidas, backgroundColor: COLORS.liquidas, tension: 0.25, borderWidth: 2, pointRadius: 3 },
+      { label: 'Economias SABREN', data: meses.map(m => porMes[m].sabren), borderColor: COLORS.sabren, backgroundColor: COLORS.sabren, tension: 0.25, borderWidth: 2, pointRadius: 3 }
+    ]
+  };
+
+  if (chartEvolucao) chartEvolucao.destroy();
+  chartEvolucao = new Chart(document.getElementById('chartEvolucao'), {
+    type: 'line',
+    data,
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, usePointStyle: true } } },
+      scales: {
+        y: { ticks: { font: { size: 10 } }, grid: { color: '#E8EDF0' } },
+        x: { ticks: { font: { size: 10 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderChartBloco(rowsFiltradas){
+  const porMesBloco = agregarPorMesEBloco(rowsFiltradas);
+  const meses = Object.keys(porMesBloco).sort();
+  const labels = meses.map(formatMes);
+
+  const bloco1 = meses.map(m => porMesBloco[m]['Bloco 1'] || 0);
+  const bloco4 = meses.map(m => porMesBloco[m]['Bloco 4'] || 0);
+
+  if (chartBloco) chartBloco.destroy();
+  chartBloco = new Chart(document.getElementById('chartBloco'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Bloco 1', data: bloco1, backgroundColor: COLORS.bloco1, borderRadius: 4 },
+        { label: 'Bloco 4', data: bloco4, backgroundColor: COLORS.bloco4, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, usePointStyle: true } } },
+      scales: {
+        y: { ticks: { font: { size: 10 } }, grid: { color: '#E8EDF0' } },
+        x: { ticks: { font: { size: 10 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function render(){
+  const filtradas = state.rows.filter(passaFiltro);
+  renderKpis(filtradas);
+  renderChartEvolucao(filtradas);
+  renderChartBloco(filtradas);
+}
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  state.blocos.clear(); state.categorias.clear(); state.situacoes.clear();
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  const meses = [...new Set(state.rows.map(r => r.mes_referencia))].sort();
+  state.mesDe = meses[0]; state.mesAte = meses[meses.length - 1];
+  document.getElementById('selDe').value = state.mesDe;
+  document.getElementById('selAte').value = state.mesAte;
+  render();
+});
+
+(async function init(){
+  const rows = await carregarDados();
+  if (!rows) return;
+  state.rows = rows;
+  popularFiltros(rows);
+  render();
+
+  const meses = [...new Set(rows.map(r => r.mes_referencia))].sort();
+  document.getElementById('footerNote').textContent =
+    `${rows.length.toLocaleString('pt-BR')} linhas agregadas · ${meses.length} mês(es) carregado(s) (${formatMes(meses[0])} – ${formatMes(meses[meses.length-1])}) · lido de ${CSV_PATH}`;
+})();
+
+</script>
+</body>
+</html>
