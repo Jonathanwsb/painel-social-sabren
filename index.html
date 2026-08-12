@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Social x SABREN — Águas do Rio</title>
+<title>Painel ITS — Águas do Rio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -25,6 +25,7 @@
     --red-dim: #FBE4E2;
     --blue: #2464B4;
     --blue-dim: #E0EBF9;
+    --purple: #7B3FE4;
     --grid-line: rgba(14,140,127,0.05);
   }
   *{box-sizing:border-box;}
@@ -38,10 +39,7 @@
   .mono{font-family:'IBM Plex Mono',monospace;}
 
   header{
-    padding:22px 32px 18px 32px;
-    border-bottom:1px solid var(--border);
-    background:var(--bg-deep);
-    position:relative;
+    padding:20px 30px 16px 30px; border-bottom:1px solid var(--border); background:var(--bg-deep); position:relative;
   }
   header::before{
     content:""; position:absolute; left:0; top:0; height:3px; width:100%;
@@ -53,72 +51,86 @@
   }
   .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--teal); box-shadow:0 0 8px var(--teal); animation:pulse 2.2s infinite;}
   @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.35;}}
-  h1{margin:0; font-size:22px; font-weight:800; letter-spacing:-0.3px;}
+  h1{margin:0; font-size:21px; font-weight:800; letter-spacing:-0.3px;}
   h1 span{color:var(--text-dim); font-weight:500;}
-  .subtitle{color:var(--text-dim); font-size:12.5px; margin-top:5px; max-width:720px; line-height:1.5;}
-
-  #status-bar{
-    display:flex; align-items:center; gap:10px; margin-top:14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-faint);
-  }
-  #status-bar .pill{padding:3px 10px; border-radius:12px; background:var(--panel-2); border:1px solid var(--border);}
-
-  #app{max-width:1320px; margin:0 auto; padding:24px 32px 60px 32px;}
+  .subtitle{color:var(--text-dim); font-size:12px; margin-top:4px; max-width:700px; line-height:1.5;}
 
   #error-box{
-    display:none; background:var(--red-dim); border:1px solid #F0B9B6; border-left:3px solid var(--red);
-    border-radius:8px; padding:16px 20px; color:#7A2320; font-size:13px; line-height:1.6; margin-bottom:24px;
+    display:none; margin:20px 30px 0 30px; background:var(--red-dim); border:1px solid #F0B9B6; border-left:3px solid var(--red);
+    border-radius:8px; padding:16px 20px; color:#7A2320; font-size:13px; line-height:1.6;
   }
   #error-box code{background:rgba(0,0,0,0.06); padding:1px 6px; border-radius:4px; font-size:12px;}
 
-  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:26px;}
-  .kpi{
-    background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px 18px;
-    box-shadow:0 1px 2px rgba(16,35,44,0.04);
-  }
-  .kpi .lbl{font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;}
-  .kpi .val{font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600; line-height:1; color:var(--text);}
-  .kpi .delta{font-size:11.5px; margin-top:8px; font-family:'IBM Plex Mono',monospace;}
-  .kpi .delta.up{color:var(--red);}
-  .kpi .delta.down{color:var(--teal);}
-  .kpi.teal .val{color:var(--teal);}
-  .kpi.amber .val{color:var(--amber);}
+  #app{max-width:1360px; margin:0 auto; padding:22px 30px 60px 30px;}
 
   .filters{
-    display:flex; flex-wrap:wrap; gap:22px; align-items:flex-start;
-    background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px 20px; margin-bottom:26px;
+    display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start;
+    background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px 18px; margin-bottom:22px;
   }
-  .filter-group{display:flex; flex-direction:column; gap:8px;}
-  .filter-title{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.4px; text-transform:uppercase; color:var(--text-faint);}
-  .chip-row{display:flex; flex-wrap:wrap; gap:6px; max-width:420px;}
+  .filter-group{display:flex; flex-direction:column; gap:7px;}
+  .filter-title{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.3px; text-transform:uppercase; color:var(--text-faint);}
+  .chip-row{display:flex; flex-wrap:wrap; gap:6px; max-width:380px;}
   .chip{
-    font-size:11.5px; padding:5px 12px; border-radius:20px; border:1px solid var(--border);
+    font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid var(--border);
     background:var(--panel-2); color:var(--text-dim); cursor:pointer; user-select:none; transition:all .15s ease; white-space:nowrap;
   }
   .chip:hover{border-color:var(--teal); color:var(--text);}
   .chip.active{background:var(--teal-dim); border-color:var(--teal); color:var(--teal); font-weight:600;}
   .range-selects{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-dim);}
   select{
-    font-family:'IBM Plex Mono',monospace; font-size:12px; padding:6px 10px; border-radius:6px;
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; padding:6px 9px; border-radius:6px;
     border:1px solid var(--border); background:var(--panel-2); color:var(--text); cursor:pointer;
   }
+  .filter-hint{font-size:9.5px; color:var(--text-faint); font-style:italic;}
   .reset-link{
     font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-faint); background:none; border:1px dashed var(--border);
-    border-radius:6px; padding:6px 12px; cursor:pointer; align-self:flex-end; margin-left:auto;
+    border-radius:6px; padding:6px 12px; cursor:pointer; align-self:flex-end; margin-left:auto; height:fit-content;
   }
   .reset-link:hover{color:var(--text-dim); border-color:var(--text-dim);}
 
-  .charts-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:18px; margin-bottom:22px;}
-  @media (max-width:980px){.charts-grid{grid-template-columns:1fr;}}
+  /* ===== ITS HERO ===== */
+  .its-hero{
+    display:grid; grid-template-columns:280px 1fr; gap:0; margin-bottom:20px;
+    background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden;
+    box-shadow:0 1px 3px rgba(16,35,44,0.05);
+  }
+  .its-hero-left{
+    padding:22px 24px; border-right:1px solid var(--border); display:flex; flex-direction:column; justify-content:center;
+    background:linear-gradient(160deg, var(--teal-dim), var(--panel) 70%);
+  }
+  .its-label{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-faint); margin-bottom:6px;}
+  .its-value{font-family:'IBM Plex Mono',monospace; font-size:44px; font-weight:700; color:var(--teal); line-height:1;}
+  .its-trend{display:flex; align-items:center; gap:6px; margin-top:12px; font-size:12.5px; font-weight:600;}
+  .its-trend.up{color:var(--red);}
+  .its-trend.down{color:var(--teal);}
+  .its-trend.flat{color:var(--text-faint);}
+  .its-trend .arrow{font-size:15px;}
+  .its-trend-sub{font-size:10.5px; color:var(--text-faint); margin-top:3px; font-weight:400;}
+  .its-hero-right{padding:16px 20px 8px 20px;}
+  .its-chart-title{font-size:12.5px; font-weight:700; margin-bottom:2px;}
+  .its-chart-sub{font-size:10.5px; color:var(--text-faint); margin-bottom:6px;}
+  .its-chart-wrap{position:relative; height:190px;}
+
+  .kpis{display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:22px;}
+  @media (max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr);} .its-hero{grid-template-columns:1fr;} .its-hero-left{border-right:none; border-bottom:1px solid var(--border);}}
+  .kpi{
+    background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px 16px;
+    box-shadow:0 1px 2px rgba(16,35,44,0.04);
+  }
+  .kpi .lbl{font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:7px;}
+  .kpi .val{font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:600; line-height:1; color:var(--text);}
+  .kpi.teal .val{color:var(--teal);}
+  .kpi.amber .val{color:var(--amber);}
+  .kpi.blue .val{color:var(--blue);}
+
+  .charts-grid{display:grid; grid-template-columns:1fr; gap:18px; margin-bottom:22px;}
   .chart-card{
     background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px 20px;
     box-shadow:0 1px 2px rgba(16,35,44,0.04);
   }
   .chart-card h3{margin:0 0 2px 0; font-size:13.5px; font-weight:700;}
   .chart-card .chart-sub{font-size:11px; color:var(--text-faint); margin-bottom:14px;}
-  .chart-wrap{position:relative; height:280px;}
-
-  .legend-note{display:flex; gap:16px; margin-top:10px; font-size:11px; color:var(--text-dim); flex-wrap:wrap;}
-  .legend-note .sw{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:middle;}
+  .chart-wrap{position:relative; height:260px;}
 
   footer{text-align:center; padding:20px; color:var(--text-faint); font-size:11px; font-family:'IBM Plex Mono',monospace;}
 </style>
@@ -127,9 +139,24 @@
 <div id="app">
   <div id="error-box"></div>
 
-  <div class="kpis" id="kpiRow"></div>
+  <div class="its-hero">
+    <div class="its-hero-left">
+      <div class="its-label">ITS · seleção atual</div>
+      <div class="its-value" id="itsAtual">—</div>
+      <div class="its-trend" id="itsTrend"></div>
+    </div>
+    <div class="its-hero-right">
+      <div class="its-chart-title">Evolução mensal do ITS</div>
+      <div class="its-chart-sub">Todos os meses, independente do filtro de Referência (só Sit. Ligação / Bloco / Categoria / Cidade afetam este gráfico)</div>
+      <div class="its-chart-wrap"><canvas id="chartITS"></canvas></div>
+    </div>
+  </div>
 
   <div class="filters" id="filtersRow">
+    <div class="filter-group">
+      <div class="filter-title">Cidade</div>
+      <div class="chip-row" id="chipCidade"></div>
+    </div>
     <div class="filter-group">
       <div class="filter-title">Bloco</div>
       <div class="chip-row" id="chipBloco"></div>
@@ -149,20 +176,18 @@
         <span>até</span>
         <select id="selAte"></select>
       </div>
+      <div class="filter-hint">não afeta o gráfico de evolução do ITS</div>
     </div>
     <button class="reset-link" id="btnReset">↺ limpar filtros</button>
   </div>
 
+  <div class="kpis" id="kpiRow"></div>
+
   <div class="charts-grid">
     <div class="chart-card">
-      <h3>Evolução mensal</h3>
-      <div class="chart-sub">Economias totais, líquidas (após SABREN) e dentro do SABREN</div>
-      <div class="chart-wrap"><canvas id="chartEvolucao"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Bloco 1 vs Bloco 4</h3>
-      <div class="chart-sub">Economias líquidas por bloco, mês a mês</div>
-      <div class="chart-wrap"><canvas id="chartBloco"></canvas></div>
+      <h3>Economias totais, sociais e SABREN por mês</h3>
+      <div class="chart-sub">Respeita todos os filtros, inclusive Referência</div>
+      <div class="chart-wrap"><canvas id="chartComposicao"></canvas></div>
     </div>
   </div>
 </div>
@@ -175,7 +200,7 @@
 const CSV_PATH = 'consolidado_historico.csv';
 
 const state = {
-  rows: [],
+  cidades: new Set(),
   blocos: new Set(),
   categorias: new Set(),
   situacoes: new Set(),
@@ -183,15 +208,7 @@ const state = {
   mesAte: null
 };
 
-const COLORS = {
-  totais: '#2464B4',
-  liquidas: '#0E8C7F',
-  sabren: '#C2790A',
-  bloco1: '#0E8C7F',
-  bloco4: '#2464B4'
-};
-
-let chartEvolucao, chartBloco;
+let chartITS, chartComposicao;
 
 function formatMes(mesStr){
   const [ano, mes] = mesStr.split('-');
@@ -199,9 +216,8 @@ function formatMes(mesStr){
   return `${nomes[parseInt(mes,10)-1]}/${ano}`;
 }
 
-function fmtNum(v){
-  return Math.round(v).toLocaleString('pt-BR');
-}
+function fmtNum(v){ return Math.round(v).toLocaleString('pt-BR'); }
+function fmtPct(v){ return v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '%'; }
 
 function showError(msg){
   const box = document.getElementById('error-box');
@@ -214,7 +230,7 @@ async function carregarDados(){
   try {
     resp = await fetch(CSV_PATH);
   } catch (e) {
-    showError(`Não consegui buscar <code>${CSV_PATH}</code>. Se você abriu este arquivo direto (duplo-clique), o navegador bloqueia essa leitura por segurança. Rode por um servidor local (ex: Live Server do VS Code) ou publique no GitHub Pages junto com o CSV na mesma pasta.`);
+    showError(`Não consegui buscar <code>${CSV_PATH}</code>. Se você abriu este arquivo direto (duplo-clique), o navegador bloqueia essa leitura por segurança. Publique no GitHub Pages ou use um servidor local (ex: Live Server do VS Code).`);
     return null;
   }
   if (!resp.ok) {
@@ -223,35 +239,60 @@ async function carregarDados(){
   }
   const text = await resp.text();
   const parsed = Papa.parse(text, { header: true, delimiter: ';', skipEmptyLines: true, dynamicTyping: true });
-  if (parsed.errors && parsed.errors.length > 0) {
-    console.warn('Avisos ao ler CSV:', parsed.errors);
-  }
+  if (parsed.errors && parsed.errors.length > 0) console.warn('Avisos ao ler CSV:', parsed.errors);
   return parsed.data.filter(r => r.mes_referencia);
 }
 
+// -------- calculos do ITS --------
+function calcularIndicadores(rows){
+  const totais = rows.reduce((s,r)=>s+(r.economias_totais||0),0);
+  const sociais = rows.reduce((s,r)=>s+(r.economias_sociais||0),0);
+  const sabren = rows.reduce((s,r)=>s+(r.economias_sabren||0),0);
+
+  const social = totais ? sociais/totais*100 : 0;
+  const socialLiq = (totais-sabren) ? (sociais-sabren)/(totais-sabren)*100 : 0;
+  const its = (0.5*(socialLiq/100) - 0.025)/0.975*100;
+
+  return { totais, sociais, sabren, social, socialLiq, its };
+}
+
+// -------- filtros --------
+function passaFiltroComuns(r){
+  if (state.cidades.size > 0 && !state.cidades.has(r.CIDADE)) return false;
+  if (state.blocos.size > 0 && !state.blocos.has(r.BLOCO)) return false;
+  if (state.categorias.size > 0 && !state.categorias.has(r.CATEGORIA)) return false;
+  if (state.situacoes.size > 0 && !state.situacoes.has(r.SIT_LIG)) return false;
+  return true;
+}
+function passaFiltroKPI(r){
+  if (!passaFiltroComuns(r)) return false;
+  if (state.mesDe && r.mes_referencia < state.mesDe) return false;
+  if (state.mesAte && r.mes_referencia > state.mesAte) return false;
+  return true;
+}
+
 function popularFiltros(rows){
+  const cidades = [...new Set(rows.map(r => r.CIDADE))].sort();
   const blocos = [...new Set(rows.map(r => r.BLOCO))].sort();
   const categorias = [...new Set(rows.map(r => r.CATEGORIA))].sort();
   const situacoes = [...new Set(rows.map(r => r.SIT_LIG))].sort();
   const meses = [...new Set(rows.map(r => r.mes_referencia))].sort();
 
-  const chipBloco = document.getElementById('chipBloco');
-  chipBloco.innerHTML = blocos.map(b => `<div class="chip" data-v="${b}">${b}</div>`).join('');
-  chipBloco.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
-    toggleSet(state.blocos, c.dataset.v); c.classList.toggle('active'); render();
-  }));
+  function montaChip(containerId, valores, set){
+    const el = document.getElementById(containerId);
+    el.innerHTML = valores.map(v => `<div class="chip" data-v="${v}">${v}</div>`).join('');
+    el.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+      const v = c.dataset.v;
+      if (set.has(v)) { set.delete(v); c.classList.remove('active'); }
+      else { set.add(v); c.classList.add('active'); }
+      render();
+    }));
+  }
 
-  const chipCategoria = document.getElementById('chipCategoria');
-  chipCategoria.innerHTML = categorias.map(c => `<div class="chip" data-v="${c}">${c}</div>`).join('');
-  chipCategoria.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
-    toggleSet(state.categorias, c.dataset.v); c.classList.toggle('active'); render();
-  }));
-
-  const chipSituacao = document.getElementById('chipSituacao');
-  chipSituacao.innerHTML = situacoes.map(s => `<div class="chip" data-v="${s}">${s}</div>`).join('');
-  chipSituacao.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
-    toggleSet(state.situacoes, c.dataset.v); c.classList.toggle('active'); render();
-  }));
+  montaChip('chipCidade', cidades, state.cidades);
+  montaChip('chipBloco', blocos, state.blocos);
+  montaChip('chipCategoria', categorias, state.categorias);
+  montaChip('chipSituacao', situacoes, state.situacoes);
 
   const selDe = document.getElementById('selDe');
   const selAte = document.getElementById('selAte');
@@ -265,131 +306,95 @@ function popularFiltros(rows){
   selAte.addEventListener('change', () => { state.mesAte = selAte.value; render(); });
 }
 
-function toggleSet(set, val){
-  if (set.has(val)) set.delete(val); else set.add(val);
-}
+// -------- render --------
+function renderHeroITS(rowsKPI, rowsEvolucao){
+  const ind = calcularIndicadores(rowsKPI);
+  document.getElementById('itsAtual').textContent = fmtPct(ind.its);
 
-function passaFiltro(r){
-  if (state.blocos.size > 0 && !state.blocos.has(r.BLOCO)) return false;
-  if (state.categorias.size > 0 && !state.categorias.has(r.CATEGORIA)) return false;
-  if (state.situacoes.size > 0 && !state.situacoes.has(r.SIT_LIG)) return false;
-  if (state.mesDe && r.mes_referencia < state.mesDe) return false;
-  if (state.mesAte && r.mes_referencia > state.mesAte) return false;
-  return true;
-}
-
-function agregarPorMes(rows){
+  // tendencia: compara os 2 ultimos meses da serie SEM filtro de referencia
   const porMes = {};
-  rows.forEach(r => {
-    if (!porMes[r.mes_referencia]) {
-      porMes[r.mes_referencia] = { totais: 0, sabren: 0, liquidas: 0, ligacoes: 0 };
-    }
-    porMes[r.mes_referencia].totais += r.economias_totais || 0;
-    porMes[r.mes_referencia].sabren += r.economias_sabren || 0;
-    porMes[r.mes_referencia].liquidas += r.economias_liquidas || 0;
-    porMes[r.mes_referencia].ligacoes += r.ligacoes || 0;
+  rowsEvolucao.forEach(r => {
+    if (!porMes[r.mes_referencia]) porMes[r.mes_referencia] = [];
+    porMes[r.mes_referencia].push(r);
   });
-  return porMes;
-}
-
-function agregarPorMesEBloco(rows){
-  const chave = {};
-  rows.forEach(r => {
-    const k = r.mes_referencia;
-    if (!chave[k]) chave[k] = {};
-    if (!chave[k][r.BLOCO]) chave[k][r.BLOCO] = 0;
-    chave[k][r.BLOCO] += r.economias_liquidas || 0;
-  });
-  return chave;
-}
-
-function renderKpis(rowsFiltradas){
-  const porMes = agregarPorMes(rowsFiltradas);
   const meses = Object.keys(porMes).sort();
-  const kpiRow = document.getElementById('kpiRow');
+  const trendEl = document.getElementById('itsTrend');
 
-  if (meses.length === 0) {
-    kpiRow.innerHTML = `<div class="kpi"><div class="lbl">Sem dados</div><div class="val">—</div></div>`;
-    return;
+  if (meses.length >= 2) {
+    const ultimo = calcularIndicadores(porMes[meses[meses.length-1]]);
+    const penultimo = calcularIndicadores(porMes[meses[meses.length-2]]);
+    const diff = ultimo.its - penultimo.its;
+    const subindo = diff > 0.001;
+    const descendo = diff < -0.001;
+    const cls = subindo ? 'up' : (descendo ? 'down' : 'flat');
+    const arrow = subindo ? '▲' : (descendo ? '▼' : '▬');
+    trendEl.className = `its-trend ${cls}`;
+    trendEl.innerHTML = `<span class="arrow">${arrow}</span> ${Math.abs(diff).toFixed(2)} p.p. vs ${formatMes(meses[meses.length-2])}
+      <div class="its-trend-sub">${formatMes(meses[meses.length-2])}: ${fmtPct(penultimo.its)} → ${formatMes(meses[meses.length-1])}: ${fmtPct(ultimo.its)}</div>`;
+  } else {
+    trendEl.className = 'its-trend flat';
+    trendEl.innerHTML = `<span class="its-trend-sub">Ainda não há mês anterior pra comparar</span>`;
   }
 
-  const ultimoMes = meses[meses.length - 1];
-  const penultimoMes = meses.length > 1 ? meses[meses.length - 2] : null;
-  const atual = porMes[ultimoMes];
-  const anterior = penultimoMes ? porMes[penultimoMes] : null;
-  const pctSabren = atual.totais ? (atual.sabren / atual.totais * 100) : 0;
-
-  function deltaHtml(valAtual, valAnterior, inverterCor){
-    if (!anterior) return '';
-    const diff = valAtual - valAnterior;
-    const pct = valAnterior ? (diff / valAnterior * 100) : 0;
-    const subiu = diff > 0;
-    const cls = inverterCor ? (subiu ? 'down' : 'up') : (subiu ? 'up' : 'down');
-    const seta = subiu ? '▲' : '▼';
-    return `<div class="delta ${cls}">${seta} ${Math.abs(pct).toFixed(1)}% vs ${formatMes(penultimoMes)}</div>`;
-  }
-
-  const kpis = [
-    { lbl: `Economias totais · ${formatMes(ultimoMes)}`, val: fmtNum(atual.totais), delta: deltaHtml(atual.totais, anterior?.totais, false), cls: '' },
-    { lbl: 'Economias dentro do SABREN', val: fmtNum(atual.sabren), delta: deltaHtml(atual.sabren, anterior?.sabren, true), cls: 'amber' },
-    { lbl: 'Economias líquidas', val: fmtNum(atual.liquidas), delta: deltaHtml(atual.liquidas, anterior?.liquidas, false), cls: 'teal' },
-    { lbl: '% dentro do SABREN', val: pctSabren.toFixed(2) + '%', delta: '', cls: 'amber' }
-  ];
-
-  kpiRow.innerHTML = kpis.map(k => `
-    <div class="kpi ${k.cls}">
-      <div class="lbl">${k.lbl}</div>
-      <div class="val">${k.val}</div>
-      ${k.delta}
-    </div>
-  `).join('');
-}
-
-function renderChartEvolucao(rowsFiltradas){
-  const porMes = agregarPorMes(rowsFiltradas);
-  const meses = Object.keys(porMes).sort();
+  // grafico de evolucao (ignora filtro de referencia, usa rowsEvolucao)
   const labels = meses.map(formatMes);
+  const dataITS = meses.map(m => calcularIndicadores(porMes[m]).its);
 
-  const data = {
-    labels,
-    datasets: [
-      { label: 'Economias totais', data: meses.map(m => porMes[m].totais), borderColor: COLORS.totais, backgroundColor: COLORS.totais, tension: 0.25, borderWidth: 2, pointRadius: 3 },
-      { label: 'Economias líquidas', data: meses.map(m => porMes[m].liquidas), borderColor: COLORS.liquidas, backgroundColor: COLORS.liquidas, tension: 0.25, borderWidth: 2, pointRadius: 3 },
-      { label: 'Economias SABREN', data: meses.map(m => porMes[m].sabren), borderColor: COLORS.sabren, backgroundColor: COLORS.sabren, tension: 0.25, borderWidth: 2, pointRadius: 3 }
-    ]
-  };
-
-  if (chartEvolucao) chartEvolucao.destroy();
-  chartEvolucao = new Chart(document.getElementById('chartEvolucao'), {
+  if (chartITS) chartITS.destroy();
+  chartITS = new Chart(document.getElementById('chartITS'), {
     type: 'line',
-    data,
+    data: {
+      labels,
+      datasets: [{
+        label: 'ITS', data: dataITS, borderColor: '#0E8C7F', backgroundColor: 'rgba(14,140,127,0.12)',
+        fill: true, tension: 0.3, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#0E8C7F'
+      }]
+    },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, usePointStyle: true } } },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `ITS: ${ctx.parsed.y.toFixed(2)}%` } } },
       scales: {
-        y: { ticks: { font: { size: 10 } }, grid: { color: '#E8EDF0' } },
+        y: { ticks: { font: { size: 10 }, callback: (v) => v.toFixed(1)+'%' }, grid: { color: '#E8EDF0' } },
         x: { ticks: { font: { size: 10 } }, grid: { display: false } }
       }
     }
   });
 }
 
-function renderChartBloco(rowsFiltradas){
-  const porMesBloco = agregarPorMesEBloco(rowsFiltradas);
-  const meses = Object.keys(porMesBloco).sort();
+function renderKpis(rowsKPI){
+  const ind = calcularIndicadores(rowsKPI);
+  const kpis = [
+    { lbl: 'Total de economias', val: fmtNum(ind.totais), cls: '' },
+    { lbl: 'Economias sociais', val: fmtNum(ind.sociais), cls: 'teal' },
+    { lbl: 'Economias SABREN (sociais)', val: fmtNum(ind.sabren), cls: 'amber' },
+    { lbl: 'Social (% bruto)', val: fmtPct(ind.social), cls: 'blue' },
+    { lbl: 'Social líquido (pós-SABREN)', val: fmtPct(ind.socialLiq), cls: 'blue' }
+  ];
+  document.getElementById('kpiRow').innerHTML = kpis.map(k => `
+    <div class="kpi ${k.cls}"><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div></div>
+  `).join('');
+}
+
+function renderChartComposicao(rowsKPI){
+  const porMes = {};
+  rowsKPI.forEach(r => {
+    if (!porMes[r.mes_referencia]) porMes[r.mes_referencia] = { totais:0, sociais:0, sabren:0 };
+    porMes[r.mes_referencia].totais += r.economias_totais || 0;
+    porMes[r.mes_referencia].sociais += r.economias_sociais || 0;
+    porMes[r.mes_referencia].sabren += r.economias_sabren || 0;
+  });
+  const meses = Object.keys(porMes).sort();
   const labels = meses.map(formatMes);
 
-  const bloco1 = meses.map(m => porMesBloco[m]['Bloco 1'] || 0);
-  const bloco4 = meses.map(m => porMesBloco[m]['Bloco 4'] || 0);
-
-  if (chartBloco) chartBloco.destroy();
-  chartBloco = new Chart(document.getElementById('chartBloco'), {
+  if (chartComposicao) chartComposicao.destroy();
+  chartComposicao = new Chart(document.getElementById('chartComposicao'), {
     type: 'bar',
     data: {
       labels,
       datasets: [
-        { label: 'Bloco 1', data: bloco1, backgroundColor: COLORS.bloco1, borderRadius: 4 },
-        { label: 'Bloco 4', data: bloco4, backgroundColor: COLORS.bloco4, borderRadius: 4 }
+        { label: 'Total de economias', data: meses.map(m => porMes[m].totais), backgroundColor: '#2464B4', borderRadius: 4 },
+        { label: 'Economias sociais', data: meses.map(m => porMes[m].sociais), backgroundColor: '#0E8C7F', borderRadius: 4 },
+        { label: 'Economias SABREN', data: meses.map(m => porMes[m].sabren), backgroundColor: '#C2790A', borderRadius: 4 }
       ]
     },
     options: {
@@ -404,14 +409,16 @@ function renderChartBloco(rowsFiltradas){
 }
 
 function render(){
-  const filtradas = state.rows.filter(passaFiltro);
-  renderKpis(filtradas);
-  renderChartEvolucao(filtradas);
-  renderChartBloco(filtradas);
+  const rowsKPI = state.rows.filter(passaFiltroKPI);
+  const rowsEvolucao = state.rows.filter(passaFiltroComuns);  // sem filtro de referencia
+
+  renderHeroITS(rowsKPI, rowsEvolucao);
+  renderKpis(rowsKPI);
+  renderChartComposicao(rowsKPI);
 }
 
 document.getElementById('btnReset').addEventListener('click', () => {
-  state.blocos.clear(); state.categorias.clear(); state.situacoes.clear();
+  state.cidades.clear(); state.blocos.clear(); state.categorias.clear(); state.situacoes.clear();
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   const meses = [...new Set(state.rows.map(r => r.mes_referencia))].sort();
   state.mesDe = meses[0]; state.mesAte = meses[meses.length - 1];
