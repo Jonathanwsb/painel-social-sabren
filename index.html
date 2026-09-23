@@ -347,7 +347,20 @@ async function carregarDados(){
   const text = await resp.text();
   const parsed = Papa.parse(text, { header: true, delimiter: ';', skipEmptyLines: true, dynamicTyping: true });
   if (parsed.errors?.length) console.warn('Avisos ao ler CSV:', parsed.errors);
-  return parsed.data.filter(r => r.mes_referencia);
+  return parsed.data
+    .filter(r => r.mes_referencia)
+    .map(r => ({ ...r, mes_referencia: normalizarMes(r.mes_referencia) }));
+}
+
+// Aceita "01/10/2025", "2026-08-01", "2026-08" e devolve sempre "AAAA-MM"
+function normalizarMes(v){
+  const s = String(v).trim();
+  let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);          // DD/MM/AAAA
+  if (m) return `${m[3]}-${m[2].padStart(2,'0')}`;
+  m = s.match(/^(\d{4})-(\d{1,2})(?:-\d{1,2})?/);                // AAAA-MM[-DD]
+  if (m) return `${m[1]}-${m[2].padStart(2,'0')}`;
+  console.warn('Formato de mes_referencia não reconhecido:', s);
+  return s;
 }
 
 function calcularIndicadores(rows){
